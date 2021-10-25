@@ -1,0 +1,12 @@
+FROM php:8.0-apache
+
+RUN apt-get update \
+    && apt-get install -y zip unzip vim libpq-dev \
+    && docker-php-ext-install pdo_mysql pdo_pgsql
+
+COPY php-base.ini $PHP_INI_DIR/conf.d/
+
+COPY httpd-base.conf /etc/apache2/sites-available/laravel.conf
+RUN a2dissite 000-default.conf && a2ensite laravel.conf && a2enmod rewrite
+
+RUN curl -sS https://getcomposer.org/installer | php && mv composer.phar /usr/local/bin/composer

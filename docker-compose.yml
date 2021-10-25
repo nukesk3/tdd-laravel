@@ -1,0 +1,60 @@
+version: '3'
+
+services:
+  web:
+    build: ./docker/web
+    ports:
+    - 80:80
+    volumes:
+    - ./:/var/www/html
+    depends_on:
+    - mysql
+    - mysql-testing
+
+  mysql:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: pw
+    ports:
+    - 3306:3306
+    volumes:
+    - mysql-db:/var/lib/mysql
+
+  mysql-testing:
+    image: mysql:5.7
+    environment:
+        MYSQL_ROOT_PASSWORD: root
+        MYSQL_DATABASE: db-test
+        MYSQL_USER: test
+        MYSQL_PASSWORD: pw
+    ports:
+        - 3307:3306
+    volumes:
+        - mysql-test-volume:/var/lib/mysql
+
+  phpmyadmin:
+    depends_on:
+        - mysql
+    image: phpmyadmin/phpmyadmin
+    environment:
+        PMA_HOST: mysql
+    restart: always
+    ports:
+        - "8080:80"
+
+  phpmyadmin-testing:
+      depends_on:
+          - mysql-testing
+      image: phpmyadmin/phpmyadmin
+      environment:
+          PMA_HOST: mysql-testing
+      restart: always
+      ports:
+          - "8081:80"
+
+volumes:
+  mysql-db:
+  mysql-test-volume:
